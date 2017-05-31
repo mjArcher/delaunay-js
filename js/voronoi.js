@@ -73,6 +73,23 @@ for(i=0;i<NODES;i++){
   nodes.push(node);
 }
 
+function pushNode(ax, ay)
+{
+  var node = {
+    x: ax,
+    y: ay,
+    radius: rad
+  };
+  nodes.push(node);
+  NODES += 1;
+}
+
+pushNode(3,3);
+pushNode(canvas.width-3,3);
+pushNode(canvas.width-3,canvas.height-3);
+pushNode(3,canvas.height-3);
+console.log(NODES);
+
 nodes.sort(function(p1,p2){
   var angle1 =  Math.atan2(p1.x,p1.x);
   var angle2 =  Math.atan2(p2.y,p2.x);
@@ -183,13 +200,13 @@ function fillTriangles(){
  
   //create palette
   var seq = palette('tol-sq', validTriangles.length);
-  var div = palette(['tol-sq'], validTriangles.length);
+  var div = palette(['tol-sq', 'diverging'], validTriangles.length);
   for(var i = 0; i < validTriangles.length; i++)
   {
     var a = validTriangles[i];
     ctx.beginPath();
-    ctx.strokeStyle = "rgb(0,0,0)";
     ctx.fillStyle="#" + div[i];
+    ctx.strokeStyle="#" + div[i];
     ctx.lineWidth="3";
     ctx.moveTo(a[0].x, a[0].y);
     ctx.lineTo(a[1].x, a[1].y);
@@ -279,18 +296,8 @@ function CalculateCircleCenter(a)
   return center;
 }
 
-function draw() {
-  // console.log(canvas.width)
-  // console.log(canvas.height)
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  // drawAllCircleCombinations();
-  delaunay();
-  fillTriangles();
-  drawTriangles();
-  drawCircles();
-  // console.log(count)
+function drawNodes()
+{
   for (i = 0; i < nodes.length; i++) {
     if(i >= 0){
       ctx.strokeStyle = "rgb(215,215,215)";
@@ -307,6 +314,22 @@ function draw() {
   ctx.lineWidth="3";
   ctx.rect(pad-2*rad,pad-2*rad,canvas.width-2*pad + 4*rad,canvas.height-2*pad+4*rad);
   ctx.stroke();
+
+}
+
+function draw() {
+  // console.log(canvas.width)
+  // console.log(canvas.height)
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  // drawAllCircleCombinations(); // very expensive
+  delaunay();
+  fillTriangles();
+  // drawTriangles();
+  // drawCircles();
+  // drawNodes();
+  // console.log(count)
   window.requestAnimationFrame(draw);
 }
 window.requestAnimationFrame(draw);
