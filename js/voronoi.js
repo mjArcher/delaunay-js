@@ -6,7 +6,7 @@ var isDrag = false;
 var mySel, mySeli;
 var rad = 6;
 var canvas = document.getElementById('canvas');
-
+var validTriangles = [];
 // var borderWidth = document.css("border-left-width");
 // console.log(borderWidth)
 
@@ -137,7 +137,7 @@ function getMouse(e)
 var count = 0;
 function delaunay(){
   var cmb = Combinatorics.combination(nodes, 3);
-  var validTriangles = [];
+  validTriangles = [];
   while(a = cmb.next()) 
   {
     var inside = 0;
@@ -158,19 +158,18 @@ function delaunay(){
   }
 
   // console.log("valid triangles " + validTriangles.length)
-  drawTriangles(validTriangles);
-  drawCircles(validTriangles);
   // draw the triangle
 }
 
-function drawTriangles(triangles){
-  
-  for(var i = 0; i < triangles.length; i++)
+function drawTriangles(){
+ 
+  //create palette
+  for(var i = 0; i < validTriangles.length; i++)
   {
-    var a = triangles[i];
+    var a = validTriangles[i];
     ctx.beginPath();
     ctx.strokeStyle = "rgb(0,0,0)";
-    ctx.lineWidth="2";
+    ctx.lineWidth="3";
     ctx.moveTo(a[0].x, a[0].y);
     ctx.lineTo(a[1].x, a[1].y);
     ctx.lineTo(a[2].x, a[2].y);
@@ -180,11 +179,33 @@ function drawTriangles(triangles){
   }
 }
 
-function drawCircles(circles){
-
-  for(var i = 0; i < circles.length; i++)
+function fillTriangles(){
+ 
+  //create palette
+  var seq = palette('tol-sq', validTriangles.length);
+  var div = palette(['tol-sq'], validTriangles.length);
+  for(var i = 0; i < validTriangles.length; i++)
   {
-    var a = circles[i];
+    var a = validTriangles[i];
+    ctx.beginPath();
+    ctx.strokeStyle = "rgb(0,0,0)";
+    ctx.fillStyle="#" + div[i];
+    ctx.lineWidth="3";
+    ctx.moveTo(a[0].x, a[0].y);
+    ctx.lineTo(a[1].x, a[1].y);
+    ctx.lineTo(a[2].x, a[2].y);
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+  }
+}
+
+
+function drawCircles(){
+
+  for(var i = 0; i < validTriangles.length; i++)
+  {
+    var a = validTriangles[i];
     var center = CalculateCircleCenter(a);
     var radius = dist(center.x - a[0].x, center.y - a[0].y);
     ctx.beginPath();
@@ -204,12 +225,14 @@ function drawAllCircleCombinations(){
     var radius = dist(center.x - a[0].x, center.y - a[0].y);
     ctx.beginPath();
     ctx.strokeStyle = "rgb(215,215,215)";
-    ctx.lineWidth="Å1";
+    ctx.lineWidth="1";
     ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.closePath();
   }
 }
+
+
 
 function isPointInsideSphere(a, D)
 {
@@ -222,10 +245,6 @@ function isPointInsideSphere(a, D)
     else if (angle1 > angle2) return 1;
     return 0;
   });
-
-  // console.log( a[0] );
-  // console.log( a[1] );
-  // console.log( a[2] );
 
   var A,B,C;
   A = a[0];
@@ -268,22 +287,26 @@ function draw() {
   canvas.height = window.innerHeight;
   // drawAllCircleCombinations();
   delaunay();
+  fillTriangles();
+  drawTriangles();
+  drawCircles();
   // console.log(count)
   for (i = 0; i < nodes.length; i++) {
     if(i >= 0){
       ctx.strokeStyle = "rgb(215,215,215)";
     }
+    // ctx.strokeStyle = "rgb(0,0,0)";
     ctx.beginPath();
     ctx.arc(nodes[i].x, nodes[i].y, nodes[i].radius, 0, 2 * Math.PI);
     // ctx.font="20px Georgia";
     // ctx.fillText(i,nodes[i].x + nodes[i].radius,nodes[i].y+nodes[i].radius);
-    // visualise just the 
+    ctx.fillStyle = '#000000';
     ctx.fill();
   }
   ctx.beginPath();
   ctx.lineWidth="3";
   ctx.rect(pad-2*rad,pad-2*rad,canvas.width-2*pad + 4*rad,canvas.height-2*pad+4*rad);
   ctx.stroke();
-  // window.requestAnimationFrame(draw);
+  window.requestAnimationFrame(draw);
 }
 window.requestAnimationFrame(draw);
