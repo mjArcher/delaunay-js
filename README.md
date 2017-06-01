@@ -1,9 +1,11 @@
 Delaunay triangulation
 ======================
 
-  git submodules init 
+Install:
 
-  git submodules update
+  git submodule init 
+
+  git submodule update
 
 Usage:
 
