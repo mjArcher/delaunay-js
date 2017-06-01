@@ -1,0 +1,6 @@
+[submodule "js/libs/js-combinatorics"]
+	path = js/libs/js-combinatorics
+	url = https://github.com/dankogai/js-combinatorics
+[submodule "js/libs/palette.js"]
+	path = js/libs/palette.js
+	url = https://github.com/google/palette.js
