@@ -3,12 +3,16 @@ Delaunay triangulation
 
 Install:
 
-  git submodule init 
+```
+git submodule init
+```
 
-  git submodule update
+```
+git submodule update
+```
 
 Usage:
 
-  Run using (for example): google-chrome ./index.html
+  Run using (for example): `google-chrome ./index.html`
 
   Click on triangle corners to move node
