@@ -1,6 +1,12 @@
 Delaunay triangulation
 ======================
 
-Run using (for example) google-chrome ./index.html
+  git submodules init 
 
-Click on triangle corners to move node
+  git submodules update
+
+Usage:
+
+  Run using (for example): google-chrome ./index.html
+
+  Click on triangle corners to move node
