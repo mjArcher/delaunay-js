@@ -4,3 +4,6 @@
 [submodule "js/libs/palette.js"]
 	path = js/libs/palette.js
 	url = https://github.com/google/palette.js
+[submodule "js/libs/dat.gui"]
+	path = js/libs/dat.gui
+	url = https://github.com/dataarts/dat.gui

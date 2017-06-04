@@ -21,6 +21,13 @@ var ctx = canvas.getContext('2d');
 
 var pad = 75;
 
+var voronoi_steps = { 
+  draw_dots : false, 
+  draw_circles : false, 
+  draw_lines : false,
+  add_colour : true
+};
+
 if (document.defaultView && document.defaultView.getComputedStyle) {
   stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], pad)      || 0;
   stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], pad)       || 0;
@@ -62,8 +69,6 @@ function dist(x,y){
 var nodes = [];
 
 // loop over all points in the domain, fill certain colour if near vertex 1, vertex 2 etc 
-
-
 for(i=0;i<NODES;i++){
   var node = {
     x: getRand(pad,canvas.width-pad),
@@ -150,7 +155,6 @@ function getMouse(e)
   my = e.pageY - offsetY;
 }
 
-//
 var count = 0;
 function delaunay(){
   var cmb = Combinatorics.combination(nodes, 3);
@@ -324,12 +328,33 @@ function draw() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   // drawAllCircleCombinations(); // very expensive
+  //
   delaunay();
-  fillTriangles();
-  // drawTriangles();
-  // drawCircles();
-  // drawNodes();
-  // console.log(count)
+  if(voronoi_steps.add_colour)
+    fillTriangles();
+  if(voronoi_steps.draw_lines)
+    drawTriangles();
+  if(voronoi_steps.draw_circles)
+    drawCircles();
+  if(voronoi_steps.draw_dots)
+    drawNodes();
+
   window.requestAnimationFrame(draw);
 }
+
+var gui = new dat.GUI();
+
+gui.add(voronoi_steps, 'draw_dots').listen().onChange(function(value){ 
+  voronoi_steps.step_1 = value; 
+});
+gui.add(voronoi_steps, 'draw_circles').listen().onChange(function(value){ 
+  voronoi_steps.step_2 = value; 
+});
+gui.add(voronoi_steps, 'draw_lines').listen().onChange(function(value){ 
+  voronoi_steps.step_3 = value; 
+});
+gui.add(voronoi_steps, 'add_colour').listen().onChange(function(value){ 
+  voronoi_steps.step_4 = value; 
+});
+
 window.requestAnimationFrame(draw);
