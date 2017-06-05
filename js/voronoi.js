@@ -24,6 +24,7 @@ var pad = 75;
 var voronoi_steps = { 
   draw_dots : false, 
   draw_circles : false, 
+  drawAllCircleCombinations: false,
   draw_lines : false,
   add_colour : true
 };
@@ -336,6 +337,8 @@ function draw() {
     drawTriangles();
   if(voronoi_steps.draw_circles)
     drawCircles();
+  if(voronoi_steps.drawAllCircleCombinations)
+    drawAllCircleCombinations();
   if(voronoi_steps.draw_dots)
     drawNodes();
 
@@ -350,11 +353,14 @@ gui.add(voronoi_steps, 'draw_dots').listen().onChange(function(value){
 gui.add(voronoi_steps, 'draw_circles').listen().onChange(function(value){ 
   voronoi_steps.step_2 = value; 
 });
-gui.add(voronoi_steps, 'draw_lines').listen().onChange(function(value){ 
+gui.add(voronoi_steps, 'drawAllCircleCombinations').listen().onChange(function(value){ 
   voronoi_steps.step_3 = value; 
 });
-gui.add(voronoi_steps, 'add_colour').listen().onChange(function(value){ 
+gui.add(voronoi_steps, 'draw_lines').listen().onChange(function(value){ 
   voronoi_steps.step_4 = value; 
+});
+gui.add(voronoi_steps, 'add_colour').listen().onChange(function(value){ 
+  voronoi_steps.step_5 = value; 
 });
 
 window.requestAnimationFrame(draw);
