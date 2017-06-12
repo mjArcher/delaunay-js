@@ -25,7 +25,7 @@ var voronoi_steps = {
   draw_dots : false, 
   draw_circles : false, 
   drawAllCircleCombinations: false,
-  draw_lines : false,
+  draw_lines : true,
   add_colour : true
 };
 
@@ -48,7 +48,8 @@ if (document.defaultView && document.defaultView.getComputedStyle) {
 // ctx.closePath();
 // ctx.fill();
 
-var NODES = 20;
+var nodes_num = 20;
+var nodes_count = 0;
 
 var mouse_pos_x = 0;
 var mouse_pos_y = 0;
@@ -70,31 +71,40 @@ function dist(x,y){
 var nodes = [];
 
 // loop over all points in the domain, fill certain colour if near vertex 1, vertex 2 etc 
-for(i=0;i<NODES;i++){
-  var node = {
-    x: getRand(pad,canvas.width-pad),
-    y: getRand(pad,canvas.height-pad),
-    radius: rad
-  };
-  nodes.push(node);
+
+function length(x,y)
+{
+  return Math.sqrt(x*x + y*y)
 }
 
-function pushNode(ax, ay)
+function pushNode(ax, ay, fixed)
 {
+  var rSpeed = Math.floor(Math.random() * 8);
+  
   var node = {
     x: ax,
     y: ay,
-    radius: rad
+    radius: rad,
+    x_vel: 0, //rCi * rSpeed,
+    y_vel: 0, //rCj * rSpeed
+    fix: fixed
   };
+
   nodes.push(node);
-  NODES += 1;
+  nodes_count += 1;
 }
 
-pushNode(3,3);
-pushNode(canvas.width-3,3);
-pushNode(canvas.width-3,canvas.height-3);
-pushNode(3,canvas.height-3);
-console.log(NODES);
+var dx = 0.001
+pushNode(rad,rad,true);
+pushNode(canvas.width-rad+dx,rad,true);
+pushNode(canvas.width-rad,canvas.height-rad,true);
+pushNode(rad,canvas.height-rad-2*dx,true);
+
+for(i=0;i<nodes_num;i++){
+  pushNode(getRand(pad,canvas.width-pad),getRand(pad,canvas.height-pad),false)
+}
+
+console.log(nodes_count);
 
 nodes.sort(function(p1,p2){
   var angle1 =  Math.atan2(p1.x,p1.x);
@@ -114,7 +124,7 @@ function myDown(e)
 {
   // console.log(mx, my);
   getMouse(e);
-  var l = NODES;
+  var l = nodes_count;
 
   for (var i = l-1; i >= 0; i--) {
     if(dist(mx-nodes[i].x, my-nodes[i].y) < rad*2)
@@ -157,13 +167,15 @@ function getMouse(e)
 }
 
 var count = 0;
+
+
 function delaunay(){
   var cmb = Combinatorics.combination(nodes, 3);
   validTriangles = [];
   while(a = cmb.next()) 
   {
     var inside = 0;
-    for(var i = 0; i < NODES; i++){
+    for(var i = 0; i < nodes_count; i++){
       // test if inside
       // console.log(isPointInsideSphere(a,nodes[i]))
       if(isPointInsideSphere(a,nodes[i]) > 0)
@@ -254,8 +266,6 @@ function drawAllCircleCombinations(){
   }
 }
 
-
-
 function isPointInsideSphere(a, D)
 {
   // now sorted in counterclockwise order
@@ -322,15 +332,107 @@ function drawNodes()
 
 }
 
-function draw() {
-  // console.log(canvas.width)
-  // console.log(canvas.height)
+noise.seed(Math.random());
+var speed = 1;
+var step = 200;
+var val = 0;
 
+function ComputeCurl3(x, y, z)  
+{ 
+  var eps = 0.001;  
+  var n1, n2, a, b;  
+
+  n1  = noise.simplex3(x, y + eps, z); 
+  n2  = noise.simplex3(x, y - eps, z); 
+  a = (n1 - n2)/(2 * eps); 
+  
+  n1  = noise.simplex3(x + eps, y, z); 
+  n2  = noise.simplex3(x - eps, y, z); 
+  b = (n1 - n2)/(2 * eps); 
+
+  return [a,-b];
+}
+
+
+function ComputeCurl(x, y)  
+{ 
+  var eps = 0.001;  
+  var n1, n2, a, b;  
+
+  n1  = noise.simplex2(x, y + eps); 
+  n2  = noise.simplex2(x, y - eps); 
+  a = (n1 - n2)/(2 * eps); 
+  
+  n1  = noise.simplex2(x + eps, y); 
+  n2  = noise.simplex2(x - eps, y); 
+  b = (n1 - n2)/(2 * eps); 
+
+  return [a,-b];
+}
+
+function particleBoundaries()
+{
+  for(i=0; i < nodes.length; i++)
+  {
+    if(nodes[i].fix == true)
+    {
+      //do nothing
+      console.log("her");
+      nodes[i].x_vel = 0;
+      nodes[i].y_vel = 0;
+    }
+    else if(nodes[i].x > canvas.width){
+      // nodes[i].x = getRand(pad,canvas.width-pad);
+      nodes[i].x_vel = -nodes[i].x_vel;
+    }
+    else if(nodes[i].x < nodes[i].radius) { 
+      // nodes[i].x = getRand(pad,canvas.width-pad);
+      nodes[i].x_vel = -nodes[i].x_vel;
+    }
+    else if(nodes[i].y > canvas.height){
+      // nodes[i].y = getRand(pad,canvas.height-pad);
+      nodes[i].y_vel = -nodes[i].y_vel;
+    }
+    else if(nodes[i].y < nodes[i].radius) { 
+      // nodes[i].y = getRand(pad,canvas.height-pad);
+      nodes[i].y_vel = -nodes[i].y_vel;
+    }
+    // nodes[i].x += nodes[i].x_vel;
+    // nodes[i].y += nodes[i].y_vel;
+  }
+
+}
+
+
+function move()
+{
+  particleBoundaries();
+
+  // 
+  for(i=0; i < nodes.length; i++)
+  {
+    // var a = noise.simplex3(particles[i].x/canvas.width, particles[i].y/canvas.height,val);
+    var curl = ComputeCurl3(nodes[i].x/step, nodes[i].y/step, val);
+
+    nodes[i].x_vel = speed*curl[0];// /Math.sqrt(Math.pow(curl[0]) + Math.pow(curl[1]));
+    nodes[i].y_vel = speed*curl[1];///Math.sqrt(Math.pow(curl[0]) + Math.pow(curl[1]));
+    ctx.beginPath();
+    ctx.fillStyle = "#00008B";
+    ctx.moveTo(nodes[i].x, nodes[i].y);
+    ctx.arc(nodes[i].x, nodes[i].y, nodes[i].radius, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function draw() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   // drawAllCircleCombinations(); // very expensive
-  //
   delaunay();
+  // move();
+
   if(voronoi_steps.add_colour)
     fillTriangles();
   if(voronoi_steps.draw_lines)
