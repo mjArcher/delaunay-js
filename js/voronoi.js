@@ -19,7 +19,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 var ctx = canvas.getContext('2d');
 
-var pad = 75;
+var pad = 800;
 
 var voronoi_steps = { 
   draw_dots : false, 
@@ -29,12 +29,12 @@ var voronoi_steps = {
   add_colour : true
 };
 
-if (document.defaultView && document.defaultView.getComputedStyle) {
-  stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], pad)      || 0;
-  stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], pad)       || 0;
-  styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], pad)  || 0;
-  styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], pad)   || 0;
-}
+// if (document.defaultView && document.defaultView.getComputedStyle) {
+//   stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], pad)      || 0;
+//   stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], pad)       || 0;
+//   styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], pad)  || 0;
+//   styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], pad)   || 0;
+// }
 
 // ctx.fillStyle = '#f00';
 // ctx=canvas.getContext("2d");
@@ -48,7 +48,7 @@ if (document.defaultView && document.defaultView.getComputedStyle) {
 // ctx.closePath();
 // ctx.fill();
 
-var nodes_num = 20;
+var nodes_num = 30;
 var nodes_count = 0;
 
 var mouse_pos_x = 0;
@@ -79,31 +79,42 @@ function length(x,y)
 
 function pushNode(ax, ay, fixed)
 {
-  var rSpeed = Math.floor(Math.random() * 8);
-  
   var node = {
     x: ax,
     y: ay,
     radius: rad,
-    x_vel: 0, //rCi * rSpeed,
-    y_vel: 0, //rCj * rSpeed
+    x_vel: 0, 
+    y_vel: 0, 
     fix: fixed
   };
-
   nodes.push(node);
-  nodes_count += 1;
+  nodes_count+=1;
 }
 
-var dx = 0.001
-pushNode(rad,rad,true);
-pushNode(canvas.width-rad+dx,rad,true);
-pushNode(canvas.width-rad,canvas.height-rad,true);
-pushNode(rad,canvas.height-rad-2*dx,true);
+var fixed=false
 
 for(i=0;i<nodes_num;i++){
-  pushNode(getRand(pad,canvas.width-pad),getRand(pad,canvas.height-pad),false)
+  var node = {
+    x: getRand(pad+rad,canvas.width-pad-rad),
+    y: getRand(pad+rad,canvas.height-pad-rad),
+    radius: rad,
+    x_vel: 0, 
+    y_vel: 0, 
+    fix: fixed
+  };
+  nodes.push(node);
 }
 
+// pushNode(3+pad,3+pad,true);
+// pushNode(canvas.width-3-pad,3+pad,true);
+// pushNode(canvas.width-3-pad,canvas.height-3-pad,true);
+// pushNode(3+pad,canvas.height-3-pad,true);
+
+// for(var i=0;i<nodes_num;i++){
+//   pushNode(getRand(pad,canvas.width-pad),getRand(pad,canvas.height-pad),false)
+// }
+
+nodes_count += nodes_num;
 console.log(nodes_count);
 
 nodes.sort(function(p1,p2){
@@ -203,7 +214,7 @@ function drawTriangles(){
     var a = validTriangles[i];
     ctx.beginPath();
     ctx.strokeStyle = "rgb(0,0,0)";
-    ctx.lineWidth="3";
+    ctx.lineWidth="1.5";
     ctx.moveTo(a[0].x, a[0].y);
     ctx.lineTo(a[1].x, a[1].y);
     ctx.lineTo(a[2].x, a[2].y);
@@ -217,7 +228,8 @@ function fillTriangles(){
  
   //create palette
   var seq = palette('tol-sq', validTriangles.length);
-  var div = palette(['tol-sq', 'diverging'], validTriangles.length);
+  var div = palette(['tol-rainbow', 'sequential-cbf'], validTriangles.length);
+  // var div = palette('Blue', validTriangles.length);
   for(var i = 0; i < validTriangles.length; i++)
   {
     var a = validTriangles[i];
@@ -232,6 +244,8 @@ function fillTriangles(){
     ctx.stroke();
     ctx.closePath();
   }
+
+  //try ordering triangles by centroid position and colour accordingly 
 }
 
 
@@ -334,7 +348,7 @@ function drawNodes()
 
 noise.seed(Math.random());
 var speed = 1;
-var step = 200;
+var step = 40;
 var val = 0;
 
 function ComputeCurl3(x, y, z)  
@@ -377,7 +391,6 @@ function particleBoundaries()
     if(nodes[i].fix == true)
     {
       //do nothing
-      console.log("her");
       nodes[i].x_vel = 0;
       nodes[i].y_vel = 0;
     }
@@ -397,8 +410,8 @@ function particleBoundaries()
       // nodes[i].y = getRand(pad,canvas.height-pad);
       nodes[i].y_vel = -nodes[i].y_vel;
     }
-    // nodes[i].x += nodes[i].x_vel;
-    // nodes[i].y += nodes[i].y_vel;
+    nodes[i].x += nodes[i].x_vel;
+    nodes[i].y += nodes[i].y_vel;
   }
 
 }
@@ -422,16 +435,19 @@ function move()
     ctx.arc(nodes[i].x, nodes[i].y, nodes[i].radius, 0, 2 * Math.PI);
     ctx.fill();
   }
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // canvas.width = window.innerWidth;
+  // canvas.height = window.innerHeight;
 }
 
 function draw() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // canvas.width = window.innerWidth;
+  // canvas.height = window.innerHeight;
   // drawAllCircleCombinations(); // very expensive
+  var fade = 0.1;
+  ctx.fillStyle = 'rgba(255, 255, 255, '+ fade + ')';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   delaunay();
-  // move();
+  move();
 
   if(voronoi_steps.add_colour)
     fillTriangles();
