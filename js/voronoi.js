@@ -4,7 +4,7 @@
 var mx, my; 
 var isDrag = false;
 var mySel, mySeli;
-var rad = 6;
+var rad = 4;
 var canvas = document.getElementById('canvas');
 var validTriangles = [];
 // var borderWidth = document.css("border-left-width");
@@ -19,14 +19,14 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 var ctx = canvas.getContext('2d');
 
-var pad = 800;
+var pad = 100;
 
 var voronoi_steps = { 
-  draw_dots : false, 
+  draw_dots : true, 
   draw_circles : false, 
   drawAllCircleCombinations: false,
   draw_lines : true,
-  add_colour : true
+  add_colour : false
 };
 
 // if (document.defaultView && document.defaultView.getComputedStyle) {
@@ -92,6 +92,9 @@ function pushNode(ax, ay, fixed)
 }
 
 var fixed=false
+
+console.log(canvas.width)
+console.log(canvas.height)
 
 for(i=0;i<nodes_num;i++){
   var node = {
@@ -339,10 +342,10 @@ function drawNodes()
     ctx.fillStyle = '#000000';
     ctx.fill();
   }
-  ctx.beginPath();
-  ctx.lineWidth="3";
-  ctx.rect(pad-2*rad,pad-2*rad,canvas.width-2*pad + 4*rad,canvas.height-2*pad+4*rad);
-  ctx.stroke();
+  // ctx.beginPath();
+  // ctx.lineWidth="3";
+  // ctx.rect(pad-2*rad,pad-2*rad,canvas.width-2*pad + 4*rad,canvas.height-2*pad+4*rad);
+  // ctx.stroke();
 
 }
 
@@ -443,11 +446,11 @@ function draw() {
   // canvas.width = window.innerWidth;
   // canvas.height = window.innerHeight;
   // drawAllCircleCombinations(); // very expensive
-  var fade = 0.1;
+  var fade = 1.0;
   ctx.fillStyle = 'rgba(255, 255, 255, '+ fade + ')';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   delaunay();
-  move();
+  // move();
 
   if(voronoi_steps.add_colour)
     fillTriangles();
