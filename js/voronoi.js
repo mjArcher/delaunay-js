@@ -2,6 +2,7 @@
 // maps : nodes correspond to places?
 
 var mx, my; 
+mx = 100, my = 100;
 var isDrag = false;
 var mySel, mySeli;
 var rad = 4;
@@ -23,7 +24,7 @@ var pad = 100;
 
 var voronoi_steps = { 
   draw_dots : true, 
-  draw_circles : false, 
+  draw_circles : true, 
   drawAllCircleCombinations: false,
   draw_lines : true,
   add_colour : false
@@ -50,14 +51,6 @@ var voronoi_steps = {
 
 var nodes_num = 30;
 var nodes_count = 0;
-
-var mouse_pos_x = 0;
-var mouse_pos_y = 0;
-
-function mouse_track(event) {
-  mouse_pos_x = event.clientX;
-  mouse_pos_y = event.clientY;
-}
 
 function getRand(min, max) {
       return Math.random() * (max - min) + min;
@@ -91,6 +84,8 @@ function pushNode(ax, ay, fixed)
   nodes_count+=1;
 }
 
+
+
 var fixed=false
 
 console.log(canvas.width)
@@ -108,6 +103,7 @@ for(i=0;i<nodes_num;i++){
   nodes.push(node);
 }
 
+// pushNode(mx, my, false);
 // pushNode(3+pad,3+pad,true);
 // pushNode(canvas.width-3-pad,3+pad,true);
 // pushNode(canvas.width-3-pad,canvas.height-3-pad,true);
@@ -128,6 +124,8 @@ nodes.sort(function(p1,p2){
   return 0;
 });
 // console.log(nodes);
+//
+
 
 function mouse_track(e) {
   mx = e.clientX;
@@ -188,21 +186,17 @@ function delaunay(){
   validTriangles = [];
   while(a = cmb.next()) 
   {
-    var inside = 0;
+    var inside = false;
     for(var i = 0; i < nodes_count; i++){
-      // test if inside
       // console.log(isPointInsideSphere(a,nodes[i]))
       if(isPointInsideSphere(a,nodes[i]) > 0)
       {
-        inside = 1;
+        inside = true;
         break;
       }
     }
-    if(inside != 0){}
-    else{
-      // console.log("push")
+    if(!inside)
       validTriangles.push(a);
-    }
   }
 
   // console.log("valid triangles " + validTriangles.length)
@@ -217,13 +211,14 @@ function drawTriangles(){
     var a = validTriangles[i];
     ctx.beginPath();
     ctx.strokeStyle = "rgb(0,0,0)";
-    ctx.lineWidth="1.5";
+    ctx.lineWidth="1.0";
     ctx.moveTo(a[0].x, a[0].y);
     ctx.lineTo(a[1].x, a[1].y);
     ctx.lineTo(a[2].x, a[2].y);
     ctx.lineTo(a[0].x, a[0].y);
     ctx.stroke();
     ctx.closePath();
+
   }
 }
 
@@ -449,6 +444,8 @@ function draw() {
   var fade = 1.0;
   ctx.fillStyle = 'rgba(255, 255, 255, '+ fade + ')';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  nodes[nodes_count-1].x = mx;
+  nodes[nodes_count-1].y = my;
   delaunay();
   // move();
 
