@@ -249,13 +249,14 @@ function fillTriangles(){
 
 function drawCircles(){
 
+  var fade = 0.3;
   for(var i = 0; i < validTriangles.length; i++)
   {
     var a = validTriangles[i];
     var center = CalculateCircleCenter(a);
     var radius = dist(center.x - a[0].x, center.y - a[0].y);
     ctx.beginPath();
-    ctx.strokeStyle = "rgb(255,0,0)";
+    ctx.strokeStyle = 'rgba(255, 0, 0, '+ fade + ')'; 
     ctx.lineWidth="1";
     ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
     ctx.stroke();
